@@ -11,6 +11,7 @@
 <td>gulp-minify-ejs is a gulp plugin to minify ejs template file files easily</td>
 </tr>
 </table>
+
 ## Installation
 
 [Use npm.](https://docs.npmjs.com/cli/install)
