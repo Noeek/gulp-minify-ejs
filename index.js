@@ -7,65 +7,91 @@ var through = require('through2'),
 module.exports = function(file) {
     return through.obj(function(file, enc, cb) {
         if (!file)
-            throw new PluginError('gulp-minify-ejs', 'Missing file option for gulp-minify-ejs')
+            throw new PluginError('gulp-minify-ejs', 'Missing file option for gulp-minify-ejs');
 
         if (typeof file !== 'string' && typeof file.path !== 'string')
-            throw new PluginError('gulp-minify-ejs', 'Missing path in file options for gulp-minify-ejs')
+            throw new PluginError('gulp-minify-ejs', 'Missing path in file options for gulp-minify-ejs');
 
         if (file.isBuffer()) {
-            var htmlBuilder = []
+            var htmlBuilder = [];
             var inner = false,
                 intag = false,
-                intagin = false; //intagin eg.  <% for(var a=1; a "<" 5
-            var contents = file.contents.toString('utf-8')
+                intagin = false,
+                inscript = false,
+                incss = false; //intagin eg.  <% for(var a=1; a "<" 5
+            var contents = file.contents.toString('utf-8');
 
             for (var i = 0; i < contents.length; i++) {
-                var charstr = contents[i]
+                var charstr = contents[i];
                 if (charstr === '<') {
+
+                    if (contents.substr(i, 7).toLowerCase() === '<script') {
+                        inscript = true;
+                    }
+
+                    if (contents.substr(i, 6).toLowerCase() === '<style') {
+                        inscript = true;
+                    }
+
                     //maybe <div> or </div> or a < 5
                     if (contents[i + 1] !== '%') {
                         //case a <= 5
-                        if (intagin) {
-                            //do nothing
-                        } else {
-                            intag = true
+                        if (!intagin) {
+                            intag = true;
                         }
-                        inner = true
+                        inner = true;
                     } else {
                         if (!inner) {
-                            intag = false
-                            inner = true
+                            intag = false;
+                            inner = true;
                             intagin = true;
                         }
                     }
                 }
-                if (inner) {
-                    htmlBuilder.push(charstr)
-                } else {
-                    if (charstr === '\r' || charstr === '\n' || charstr === ' ' || charstr === '\t')
+
+                if (charstr === '>') {
+                    if (i >= 4 && contents.substr(i - 6, 6).toLowerCase() === '/style') {
+                        incss = false;
+                        htmlBuilder.push(charstr);
+                        inner = intag = intagin = false;
                         continue;
-                    htmlBuilder.push(charstr)
+                    }
+                    if (i >= 7 && contents.substr(i - 7, 7).toLowerCase() === '/script') {
+                        inscript = false;
+                        htmlBuilder.push(charstr);
+                        inner = intag = intagin = false;
+                        continue;
+                    }
                 }
+
+                if (inscript || incss) {
+                    htmlBuilder.push(charstr);
+                    continue;
+                } else {
+                    if (inner) {
+                        htmlBuilder.push(charstr);
+                    } else {
+                        if (charstr === '\r' || charstr === '\n' || charstr === ' ' || charstr === '\t')
+                            continue;
+                        htmlBuilder.push(charstr);
+                    }
+                }
+
                 if (charstr === '>') {
                     if (contents[i - 1] !== '%') {
-                        inner = false
-                        intag = false
+                        inner = false;
+                        intag = false;
                     } else {
                         if (!intag) {
-                            inner = false
-                            intagin = false
-                        } else {
-                            //intag = false; emazing, it works,but I donnot know how,if you know it,tell me,
-                            //now I guess there is some bugs, at first I didn't  consider the case:
-                            //<% for(var a = 0;a [[[<]]] 5),"<" insider of ejs sentence,it works, LOL
-                            //I think this is strange
+                            inner = false;
+                            intagin = false;
                         }
                     }
                 }
             }
-            file.contents = new Buffer(htmlBuilder.join(''))
+            file.contents = new Buffer(htmlBuilder.join(''));
         }
-        this.push(file)
-        cb()
-    })
+        this.push(file);
+        cb();
+    });
 };
