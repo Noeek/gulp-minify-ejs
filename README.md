@@ -12,6 +12,14 @@
 </tr>
 </table>
 
+## 1.0.2 Update
+```
+Now you can save the space char of the html tag innertext which you wish
+such as below:
+<div> a b c www      </div>  
+===>
+<div>a b c www</div>
+```
 ## Installation
 
 [Use npm.](https://docs.npmjs.com/cli/install)
