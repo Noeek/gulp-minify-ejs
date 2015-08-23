@@ -14,7 +14,7 @@
 
 ## 1.0.2 Update
 ```
-Now you can save the space char of the html tag innertext which you wish
+Now you can save space chars of the html tag inner text which you wish
 such as below:
 <div> a b c www      </div>  
 ===>
