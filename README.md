@@ -8,7 +8,7 @@
 </tr>
 <tr>
 <td>Description</td>
-<td>gulp-minify-ejs is a gulp plugin to minify ejs template or html files or C# .aspx file  files easily</td>
+<td>gulp-minify-ejs is a gulp plugin to minify ejs template or html files or C# .aspx files easily</td>
 </tr>
 </table>
 
